@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 volumes:
   pg_data:
@@ -11,23 +11,32 @@ services:
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
+
   backend:
     image: iofakh/kittygram_backend
     env_file: .env
     volumes:
-      - static:/static
-      - media:/app/media/
+      - static:/backend_static
+      - media:/app/media
+    depends_on:
+      - db
+
   frontend:
     image: iofakh/kittygram_frontend
     env_file: .env
-    command: cp -r /app/build/. /frontend_static/
+    command: cp -r /app/build/. /static/
     volumes:
-      - static:/frontend_static
+      - static:/static
+    depends_on:
+      - backend
+
   gateway:
     image: iofakh/kittygram_gateway
     env_file: .env
     volumes:
-      - static:/static
-      - media:/app/media/
+      - static:/static/
+      - media:/media
+    depends_on:
+      - frontend
     ports:
       - 9000:80
